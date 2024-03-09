@@ -1,37 +1,25 @@
 import { useState } from "react";
-import {
-  Input,
-  DatePicker,
-  Space,
-  Card,
-  Row,
-  Col,
-  Pagination,
-  Button,
-  Carousel,
-  List,
-  Image,
-} from "antd";
-import { Link } from "react-router-dom";
+import { Space, Row, Col, Pagination, Alert } from "antd";
 import { useQuery } from "react-query";
 import AccommodationCard from "../components/AccommodationCard";
-const { Search } = Input;
-const { RangePicker } = DatePicker;
+import Loading from "../components/Loading";
+import axios from "axios"; // Import axios
 
-const Home = () => {
+export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   const { data, isLoading, error } = useQuery(
     ["accommodations", currentPage, pageSize],
     async () => {
-      const response = await fetch(
-        `http://localhost:8080/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc`
-      );
-      if (!response.ok) {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc`
+        );
+        return response.data;
+      } catch (error) {
         throw new Error("Failed to fetch accommodations");
       }
-      return response.json();
     }
   );
 
@@ -45,11 +33,11 @@ const Home = () => {
   };
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <Loading />;
   }
 
   if (error) {
-    return <p>Error: {error.message}</p>;
+    return <Alert message="Error" description={error.message} type="error" />;
   }
 
   if (data) {
@@ -62,18 +50,18 @@ const Home = () => {
             </Col>
           ))}
         </Row>
-        <Pagination
-          current={currentPage}
-          total={data.total}
-          pageSize={pageSize}
-          onChange={handlePageChange}
-          pageSizeOptions={["10", "20", "30", "40"]} // Define available page sizes
-          showSizeChanger // Display size changer dropdown
-          onShowSizeChange={handlePageSizeChange} // Handle page size change event
-        />
+        <div style={{ textAlign: "right" }}>
+          <Pagination
+            current={currentPage}
+            total={data.total}
+            pageSize={pageSize}
+            onChange={handlePageChange}
+            pageSizeOptions={["10", "20", "30", "40"]} // Define available page sizes
+            showSizeChanger // Display size changer dropdown
+            onShowSizeChange={handlePageSizeChange} // Handle page size change event
+          />
+        </div>
       </Space>
     );
   }
-};
-
-export default Home;
+}

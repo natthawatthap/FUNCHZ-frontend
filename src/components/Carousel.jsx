@@ -18,6 +18,7 @@ const CarouselImage = ({ images }) => {
       <Carousel autoplay ref={carouselRef}>
         {images.map((image, index) => (
           <Image
+          key={index}
             preview={false}
             src={`http://localhost:8080/${image}`}
             alt={`Image ${index}`}

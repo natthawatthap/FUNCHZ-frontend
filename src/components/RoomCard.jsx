@@ -1,37 +1,27 @@
 import React from "react";
-import { Card, Carousel, Col, Row } from "antd";
-import { Link } from "react-router-dom";
+import { Card, Carousel, Col, Row, Typography, Tag } from "antd";
 
-const RoomCard = ({ room,accommodationId }) => {
+import { useNavigate } from "react-router-dom";
+import CarouselImage from "./Carousel";
+import RoomDetail from "./RoomDetail";
+const { Title, Paragraph } = Typography;
+export default function RoomCard({ room, accommodationId }) {
+  const navigate = useNavigate();
+
+  const handleClick = (roomId) => {
+    navigate(`/accommodation/${accommodationId}/room/${roomId}`);
+  };
+
   return (
     <Card>
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12}>
-          <Carousel autoplay>
-            {room.images.map((image, index) => (
-              <div key={index}>
-                <img
-                  src={`http://localhost:8080/${image}`}
-                  alt={`Image ${index}`}
-                  style={{ width: "100%", height: "auto" }}
-                />
-              </div>
-            ))}
-          </Carousel>
+          <CarouselImage images={room.images} />
         </Col>
-        <Col xs={24} sm={12}>
-          <div>
-            <h2>{room.name}</h2>
-            <p>Description: {room.description}</p>
-            <p>Type: {room.type}</p>
-            <p>Price Per Night: ${room.pricePerNight}</p>
-            <p>Amenities: {room.amenities.join(", ")}</p>
-            <Link to={`/accommodation/${accommodationId}/room/${room._id}`}>Book</Link>
-          </div>
+        <Col xs={24} sm={12} onClick={() => handleClick(room._id)} style={{ cursor: "pointer" }}>
+        <RoomDetail room={room} />
         </Col>
       </Row>
     </Card>
   );
-};
-
-export default RoomCard;
+}

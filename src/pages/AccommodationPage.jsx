@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "react-query";
-import { Spin, Alert, List, Pagination, Space, Row, Col, Typography } from "antd";
+import { Alert, Pagination, Space, Tag, Typography } from "antd";
 import axios from "axios";
+import { EnvironmentOutlined, PhoneOutlined } from "@ant-design/icons";
 import RoomCard from "../components/RoomCard";
 import CarouselImage from "../components/Carousel";
+import Loading from "../components/Loading";
 
 const { Title, Paragraph } = Typography;
 
-const AccommodationPage = () => {
-  const { id } = useParams();
+export default function AccommodationPage() {
+  const { accommodationId } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
@@ -17,9 +19,11 @@ const AccommodationPage = () => {
     data: roomData,
     isLoading: roomLoading,
     error: roomError,
-  } = useQuery(["rooms", id], async () => {
+  } = useQuery(["rooms", accommodationId], async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/rooms/${id}`);
+      const response = await axios.get(
+        `http://localhost:8080/api/rooms/${accommodationId}`
+      );
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch room details");
@@ -30,10 +34,10 @@ const AccommodationPage = () => {
     data: accommodationData,
     isLoading: accommodationLoading,
     error: accommodationError,
-  } = useQuery(["accommodation", id], async () => {
+  } = useQuery(["accommodation", accommodationId], async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/accommodation/${id}`
+        `http://localhost:8080/api/accommodation/${accommodationId}`
       );
       return response.data.accommodation;
     } catch (error) {
@@ -46,7 +50,7 @@ const AccommodationPage = () => {
   };
 
   if (roomLoading || accommodationLoading) {
-    return <Spin size="large" />;
+    return <Loading />;
   }
 
   if (roomError || accommodationError) {
@@ -60,26 +64,37 @@ const AccommodationPage = () => {
   }
 
   return (
-    <div>
+    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
       <CarouselImage images={accommodationData.images} />
       <Title level={3}>{accommodationData.name}</Title>
-      <Paragraph>Description: {accommodationData.description}</Paragraph>
-      <Paragraph>Address: {accommodationData.address}</Paragraph>
-      <Paragraph>Phone Number: {accommodationData.phoneNumber}</Paragraph>
+      <Paragraph>{accommodationData.description}</Paragraph>
+      <Paragraph>
+        <EnvironmentOutlined /> {accommodationData.address}
+      </Paragraph>
+      <Paragraph>
+        <PhoneOutlined />  {accommodationData.phoneNumber}
+      </Paragraph>
+      <Paragraph>
+        {accommodationData.amenities.map((amenity, index) => (
+          <Tag key={index}>{amenity}</Tag>
+        ))}
+      </Paragraph>
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
         {roomData.rooms.map((item) => (
-          <RoomCard key={item._id} room={item} accommodationId={id} />
+          <RoomCard
+            key={item._id}
+            room={item}
+            accommodationId={accommodationId}
+          />
         ))}
       </Space>
       <Pagination
-        style={{ marginTop: "16px", textAlign: "center" }}
+        style={{ marginTop: "16px", textAlign: "right" }}
         current={currentPage}
         total={roomData.total}
         pageSize={pageSize}
         onChange={handlePageChange}
       />
-    </div>
+    </Space>
   );
-};
-
-export default AccommodationPage;
+}
