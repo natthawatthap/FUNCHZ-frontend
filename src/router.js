@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import BookingPage from "./pages/BookingPage";
 import SignUpPage from "./pages/SignUpPage";
 import SignInPage from "./pages/SignInPage";
+import AccommodationPage from "./pages/AccommodationPage";
 
 const router = createBrowserRouter([
   {
@@ -18,10 +19,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/accommodation/:id",
-        Component: BookingPage,
+        Component: AccommodationPage,
       },
       {
-        path: "/accommodation/:id/room/:id",
+        path: "/accommodation/:accommodationId/room/:roomId",
         Component: BookingPage,
       },
       // {

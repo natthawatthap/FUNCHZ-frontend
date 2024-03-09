@@ -15,13 +15,12 @@ const BaseLayout = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Header>
+      <Header style={{ backgroundColor: "#f0f2f5", padding: "0 16px" }}>
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            maxWidth: "1200px",
             margin: "0 auto",
           }}
         >
@@ -44,7 +43,7 @@ const BaseLayout = () => {
         <div
           style={{
             margin: "16px 0",
-            background: "#9d9a9a",
+            background: "#fff",
             padding: 24,
             borderRadius: 12,
           }}
@@ -55,7 +54,7 @@ const BaseLayout = () => {
       <Footer
         style={{
           textAlign: "center",
-          background: "#c9acac",
+          background: "#f0f2f5",
         }}
       >
         FUNCH ©{new Date().getFullYear()} Created by Natthawat

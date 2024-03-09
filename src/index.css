@@ -1,11 +1,11 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: sans-serif; /* Use a generic sans-serif font */
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #333; /* Adjust text color to a darker shade */
+  background-color: #f0f0f0; /* Use a light gray background color */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

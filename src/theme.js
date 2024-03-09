@@ -1,19 +1,19 @@
 import { theme } from "antd";
+
 const customTheme = {
   ...theme,
   token: {
-    colorPrimary: "#4a5c6c",
-    borderRadius: 8,
+    colorPrimary: "#1890ff", // Primary color for buttons, links, etc.
+    borderRadius: 4, // Border radius for components
   },
   components: {
     Button: {
-      colorPrimary: "#4a5c6c",
-      algorithm: "algorithm",
+      colorPrimary: "#1890ff", // Color for primary buttons
     },
-    // Layout: {
-    //   headerBg: "#285074", // Customize the background color of the header
-    //   headerColor: "rgba(194, 122, 122, 0.88)", // Customize the text color of the header
-    // },
+    Layout: {
+      headerBg: "#f0f2f5", // Background color for the header
+      headerColor: "#333", // Text color for the header
+    },
   },
 };
 
