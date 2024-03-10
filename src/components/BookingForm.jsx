@@ -1,80 +1,105 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, DatePicker, Typography } from "antd";
+import { useMutation } from "react-query";
+import axios from "axios";
 
 const { Text } = Typography;
 
-const BookingForm = ({
-  handleSubmit,
-  handleDateChange,
-  disabledDate,
-  staySummary,
-  handleInputChange,
-}) => {
+export default function BookingForm({
+  userId,
+  accommodationId,
+  roomId,
+  bookings,
+  pricePerNight,
+}) {
+  const [bookingInfo, setBookingInfo] = useState({
+    checkinDate: null,
+    checkoutDate: null,
+    name: "",
+    phoneNumber: "",
+    email: "",
+  });
 
-    const createBookingMutation = useMutation((formData) => {
-        console.log("Booking Form Data:", formData); // Log the formData
-        return axios.post(`http://localhost:8080/api/booking`, formData);
-      });
-    
-      const handleDateChange = (dates) => {
-        if (!dates || dates.length !== 2) {
-          // Dates are not provided or invalid
-          return;
-        }
-    
-        const [checkinDate, checkoutDate] = dates;
-        setBookingInfo({ ...bookingInfo, checkinDate, checkoutDate });
-    
-        // Calculate the difference between check-in and check-out dates
-        if (checkinDate && checkoutDate) {
-          const diffInDays = Math.ceil(
-            (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)
-          );
-          const diffInNights = diffInDays - 1; // Assuming a day starts from check-in and ends on the night before checkout
-          setStaySummary(
-            `Stay Duration: ${diffInDays} days, ${diffInNights} nights`
-          );
-        }
+  const [staySummary, setStaySummary] = useState("");
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  const createBookingMutation = useMutation((formData) => {
+    return axios.post(`http://localhost:8080/api/booking`, formData);
+  });
+
+  const handleDateChange = (dates) => {
+    if (!dates || dates.length !== 2) {
+      // Dates are not provided or invalid
+      return;
+    }
+
+    const [checkinDate, checkoutDate] = dates;
+    setBookingInfo({ ...bookingInfo, checkinDate, checkoutDate });
+
+    // Calculate the stay duration
+    const stayDuration = calculateStayDuration(checkinDate, checkoutDate);
+    setStaySummary(stayDuration);
+
+    // Calculate total price
+    const nights = stayDuration.nights;
+    const days = stayDuration.days;
+    const totalPrice = pricePerNight * nights * days;
+    setTotalPrice(totalPrice);
+  };
+
+  const calculateStayDuration = (checkinDate, checkoutDate) => {
+    if (checkinDate && checkoutDate) {
+      const diffInDays = Math.ceil(
+        (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)
+      );
+      const diffInNights = diffInDays - 1;
+      return { days: diffInDays, nights: diffInNights };
+    }
+    return { days: 0, nights: 0 };
+  };
+
+  const disabledDate = (current) => {
+    // Get today's date
+    const today = new Date();
+    // Disable dates that fall within the existing bookings
+    return (
+      current &&
+      (current < today ||
+        bookings.some((booking) => {
+          const startDate = new Date(booking.checkinDate);
+          const endDate = new Date(booking.checkoutDate);
+          return current >= startDate && current <= endDate;
+        }))
+    );
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setBookingInfo({ ...bookingInfo, [name]: value });
+  };
+
+  const handleSubmit = async (values) => {
+    try {
+      const formData = {
+        ...values, // Use the form values passed from BookingForm
+        userId,
+        accommodationId,
+        roomId,
+        checkinDate: bookingInfo.checkinDate.toISOString(), // Convert to ISO string
+        checkoutDate: bookingInfo.checkoutDate.toISOString(), // Convert to ISO string
       };
-    
-      const disabledDate = (current) => {
-        // Get today's date
-        const today = new Date();
-        // Disable dates that fall within the existing bookings
-        return (
-          current &&
-          (current < today ||
-            bookings.some((booking) => {
-              const startDate = new Date(booking.checkinDate);
-              const endDate = new Date(booking.checkoutDate);
-              return current >= startDate && current <= endDate;
-            }))
-        );
-      };
-    
-      const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setBookingInfo({ ...bookingInfo, [name]: value });
-      };
-    
-      const handleSubmit = async (values) => {
-        try {
-          const formData = {
-            ...values, // Use the form values passed from BookingForm
-            checkinDate: bookingInfo.checkinDate.toISOString(), // Convert to ISO string
-            checkoutDate: bookingInfo.checkoutDate.toISOString(), // Convert to ISO string
-          };
-          await createBookingMutation.mutateAsync(formData);
-          // Handle successful booking
-          console.log("Booking successful");
-        } catch (error) {
-          // Handle booking error
-          console.error("Error creating booking:", error);
-        }
-      };
+      await createBookingMutation.mutateAsync(formData);
+      // Handle successful booking
+      console.log("Booking successful");
+    } catch (error) {
+      // Handle booking error
+      console.error("Error creating booking:", error);
+    }
+  };
+
   return (
     <Form layout="vertical" onFinish={handleSubmit}>
-      <Form.Item label="Check-in/Check-out Dates">
+      <Form.Item label="Check-in / Check-out Dates">
         <DatePicker.RangePicker
           showTime={{
             format: "HH:mm",
@@ -83,8 +108,16 @@ const BookingForm = ({
           onChange={handleDateChange}
           disabledDate={disabledDate}
         />
-        {staySummary && <Text type="secondary">{staySummary}</Text>}
       </Form.Item>
+
+      {staySummary && (
+        <Form.Item label="Stay Duration">
+          <Text type="secondary">
+            {staySummary.days} days, {staySummary.nights} nights
+          </Text>
+        </Form.Item>
+      )}
+
       <Form.Item
         label="Name"
         name="name"
@@ -95,9 +128,7 @@ const BookingForm = ({
       <Form.Item
         label="Phone Number"
         name="phoneNumber"
-        rules={[
-          { required: true, message: "Please enter your phone number" },
-        ]}
+        rules={[{ required: true, message: "Please enter your phone number" }]}
       >
         <Input name="phoneNumber" onChange={handleInputChange} />
       </Form.Item>
@@ -111,6 +142,13 @@ const BookingForm = ({
       >
         <Input name="email" onChange={handleInputChange} />
       </Form.Item>
+
+      {totalPrice !== 0 && (
+        <Form.Item label="Total Price">
+          <Text>{`$${totalPrice}`}</Text>
+        </Form.Item>
+      )}
+
       <Form.Item>
         <Button type="primary" htmlType="submit">
           Book Now
@@ -118,6 +156,4 @@ const BookingForm = ({
       </Form.Item>
     </Form>
   );
-};
-
-export default BookingForm;
+}
