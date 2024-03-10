@@ -14,7 +14,7 @@ export default function HomePage() {
     async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc`
+          `${import.meta.env.VITE_API_BASE_URL}/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc`
         );
         return response.data;
       } catch (error) {

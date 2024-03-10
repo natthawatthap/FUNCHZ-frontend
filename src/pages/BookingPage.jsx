@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Alert, Space, Card } from "antd";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
+import { jwtDecode } from "jwt-decode";
 import CarouselImage from "../components/Carousel";
 import RoomDetail from "../components/RoomDetail";
 import axios from "axios";
@@ -10,7 +11,22 @@ import BookingForm from "../components/BookingForm";
 
 const Booking = () => {
   const { accommodationId, roomId } = useParams();
-  const userId = "65eccc09afb5f002dc5aa3fd";
+  const navigate = useNavigate();
+
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      localStorage.setItem('redirect',`/accommodation/${accommodationId}/room/${roomId}`);
+      navigate("/signin");
+    } else {
+      const decodedToken = jwtDecode(token); // Decode the token
+      if (decodedToken.userId) {
+        setUserId(decodedToken.userId); // Set the user ID from the decoded token
+      }
+    }
+  }, [navigate]);
 
   const {
     data: room,
@@ -19,7 +35,7 @@ const Booking = () => {
   } = useQuery(["room", roomId], async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/room/${roomId}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/room/${roomId}`
       );
       return response.data.room;
     } catch (error) {
@@ -34,7 +50,7 @@ const Booking = () => {
   } = useQuery(["bookings", roomId], async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/booking/${roomId}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/booking/${roomId}`
       );
       console.log(response.data);
       return response.data.bookings;
@@ -43,11 +59,11 @@ const Booking = () => {
     }
   });
 
-  if (roomLoading||bookingsLoading) {
+  if (roomLoading || bookingsLoading) {
     return <Loading />;
   }
 
-  if (roomError||bookingsError) {
+  if (roomError || bookingsError) {
     return (
       <Alert message="Error" description={roomError.message} type="error" />
     );

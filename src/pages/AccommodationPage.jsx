@@ -22,7 +22,7 @@ export default function AccommodationPage() {
   } = useQuery(["rooms", accommodationId], async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/rooms/${accommodationId}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/rooms/${accommodationId}`
       );
       return response.data;
     } catch (error) {
@@ -37,7 +37,7 @@ export default function AccommodationPage() {
   } = useQuery(["accommodation", accommodationId], async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/accommodation/${accommodationId}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/accommodation/${accommodationId}`
       );
       return response.data.accommodation;
     } catch (error) {

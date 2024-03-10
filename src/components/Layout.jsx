@@ -1,9 +1,17 @@
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, Link } from "react-router-dom";
 import { Breadcrumb, Layout, Menu, theme, Button, Image, Space } from "antd";
 const { Header, Content, Footer } = Layout;
 
 const BaseLayout = () => {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track authentication
+
+  useEffect(() => {
+    // Check if token exists in localStorage to determine authentication status
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
 
   const handleLogin = () => {
     navigate("/signin");
@@ -11,6 +19,12 @@ const BaseLayout = () => {
 
   const handleSignup = () => {
     navigate("/signup");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Remove token from localStorage
+    setIsLoggedIn(false); // Update authentication state
+    navigate("/"); // Redirect to home page or wherever needed
   };
 
   return (
@@ -28,10 +42,17 @@ const BaseLayout = () => {
             <Image src="logo.svg" preview={false} />
           </Link>
           <Space>
-            <Button onClick={handleLogin}>เข้าสู่ระบบ</Button>
-            <Button type="primary" onClick={handleSignup}>
-              สมัครสมาชิค
-            </Button>
+            {/* Conditionally render login and signup buttons based on authentication status */}
+            {isLoggedIn ? (
+              <Button onClick={handleLogout}>Logout</Button>
+            ) : (
+              <>
+                <Button onClick={handleLogin}>Login</Button>
+                <Button type="primary" onClick={handleSignup}>
+                Register
+                </Button>
+              </>
+            )}
           </Space>
         </div>
       </Header>

@@ -28,7 +28,7 @@ export default function BookingForm({
   const [totalPrice, setTotalPrice] = useState(0);
 
   const createBookingMutation = useMutation((formData) => {
-    return axios.post(`http://localhost:8080/api/booking`, formData);
+    return axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/booking`, formData);
   });
 
   const handleDateChange = (dates) => {

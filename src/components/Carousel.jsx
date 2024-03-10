@@ -20,7 +20,7 @@ const CarouselImage = ({ images }) => {
           <Image
           key={index}
             preview={false}
-            src={`http://localhost:8080/${image}`}
+            src={`${import.meta.env.VITE_API_BASE_URL}/${image}`}
             alt={`Image ${index}`}
             width={"100%"}
           />
