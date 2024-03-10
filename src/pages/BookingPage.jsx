@@ -43,6 +43,22 @@ const Booking = () => {
     }
   });
 
+  const { data: userData } = useQuery("user", async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/api/user`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to fetch user data");
+    }
+  });
+
   const {
     data: bookings = [],
     isLoading: bookingsLoading,
@@ -52,7 +68,6 @@ const Booking = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/api/booking/${roomId}`
       );
-      console.log(response.data);
       return response.data.bookings;
     } catch (error) {
       throw new Error("Failed to fetch bookings");
@@ -76,6 +91,7 @@ const Booking = () => {
       <Card>
         <BookingForm
           userId={userId}
+          userData={userData}
           accommodationId={accommodationId}
           roomId={roomId}
           bookings={bookings}

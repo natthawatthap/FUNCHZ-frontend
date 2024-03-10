@@ -6,6 +6,7 @@ import BookingPage from "./pages/BookingPage";
 import SignUpPage from "./pages/SignUpPage";
 import SignInPage from "./pages/SignInPage";
 import AccommodationPage from "./pages/AccommodationPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const router = createBrowserRouter([
   {
@@ -25,18 +26,10 @@ const router = createBrowserRouter([
         path: "/accommodation/:accommodationId/room/:roomId",
         Component: BookingPage,
       },
-      // {
-      //   path: "/404",
-      //   Component: NotFoundPage,
-      // },
-      // {
-      //   path: "/500",
-      //   Component: ErrorPage,
-      // },
-      // {
-      //   path: "*",
-      //   Component: NotFoundPage,
-      // },
+      {
+        path: "*",
+        Component: NotFoundPage,
+      },
     ],
   },
   {

@@ -3,16 +3,16 @@ import { theme } from "antd";
 const customTheme = {
   ...theme,
   token: {
-    colorPrimary: "#1890ff", // Primary color for buttons, links, etc.
-    borderRadius: 4, // Border radius for components
+    colorPrimary: "#1890ff", 
+    borderRadius: 4, 
   },
   components: {
     Button: {
-      colorPrimary: "#1890ff", // Color for primary buttons
+      colorPrimary: "#1890ff", 
     },
     Layout: {
-      headerBg: "#f0f2f5", // Background color for the header
-      headerColor: "#333", // Text color for the header
+      headerBg: "#f0f2f5", 
+      headerColor: "#333", 
     },
   },
 };

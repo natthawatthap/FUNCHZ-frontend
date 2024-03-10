@@ -37,7 +37,9 @@ export default function AccommodationPage() {
   } = useQuery(["accommodation", accommodationId], async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/api/accommodation/${accommodationId}`
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/api/accommodation/${accommodationId}`
       );
       return response.data.accommodation;
     } catch (error) {
@@ -72,29 +74,39 @@ export default function AccommodationPage() {
         <EnvironmentOutlined /> {accommodationData.address}
       </Paragraph>
       <Paragraph>
-        <PhoneOutlined />  {accommodationData.phoneNumber}
+        <PhoneOutlined /> {accommodationData.phoneNumber}
       </Paragraph>
       <Paragraph>
         {accommodationData.amenities.map((amenity, index) => (
           <Tag key={index}>{amenity}</Tag>
         ))}
       </Paragraph>
-      <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-        {roomData.rooms.map((item) => (
-          <RoomCard
-            key={item._id}
-            room={item}
-            accommodationId={accommodationId}
+      {roomData.rooms.length === 0 ? (
+        <Alert
+          message="No Rooms Available"
+          description="There are currently no rooms available for this accommodation."
+          type="info"
+        />
+      ) : (
+        <>
+          <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+            {roomData.rooms.map((item) => (
+              <RoomCard
+                key={item._id}
+                room={item}
+                accommodationId={accommodationId}
+              />
+            ))}
+          </Space>
+          <Pagination
+            style={{ marginTop: "16px", textAlign: "right" }}
+            current={currentPage}
+            total={roomData.total}
+            pageSize={pageSize}
+            onChange={handlePageChange}
           />
-        ))}
-      </Space>
-      <Pagination
-        style={{ marginTop: "16px", textAlign: "right" }}
-        current={currentPage}
-        total={roomData.total}
-        pageSize={pageSize}
-        onChange={handlePageChange}
-      />
+        </>
+      )}
     </Space>
   );
 }

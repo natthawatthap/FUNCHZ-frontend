@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Input, Button, DatePicker, Typography } from "antd";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import axios from "axios";
 import moment from "moment";
 
@@ -8,28 +8,44 @@ const { Text } = Typography;
 
 export default function BookingForm({
   userId,
+  userData,
   accommodationId,
   roomId,
   bookings,
   pricePerNight,
 }) {
+ 
+  
+
+  const [staySummary, setStaySummary] = useState("");
+  const [totalPrice, setTotalPrice] = useState(0);
+  
+
+  const createBookingMutation = useMutation((formData) => {
+    return axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/api/booking`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  });
+
+ 
+
   const [bookingInfo, setBookingInfo] = useState({
     userId,
     accommodationId,
     roomId,
     checkinDate: null,
     checkoutDate: null,
-    name: "",
-    phoneNumber: "",
-    email: "",
+    name: userData ? userData.name || "" : "",
+    phoneNumber: userData ? userData.phoneNumber || "" : "",
+    email: userData ? userData.email || "" : "",
   });
 
-  const [staySummary, setStaySummary] = useState("");
-  const [totalPrice, setTotalPrice] = useState(0);
-
-  const createBookingMutation = useMutation((formData) => {
-    return axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/booking`, formData);
-  });
 
   const handleDateChange = (dates) => {
     if (!dates || dates.length !== 2) {
@@ -99,7 +115,7 @@ export default function BookingForm({
   };
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit}>
+    <Form layout="vertical" onFinish={handleSubmit} initialValues={bookingInfo}>
       <Form.Item label="Check-in / Check-out Dates">
         <DatePicker.RangePicker
           showTime={{
@@ -124,14 +140,22 @@ export default function BookingForm({
         name="name"
         rules={[{ required: true, message: "Please enter your name" }]}
       >
-        <Input name="name" onChange={handleInputChange} />
+        <Input
+          name="name"
+          onChange={handleInputChange}
+          value={bookingInfo.name}
+        />
       </Form.Item>
       <Form.Item
         label="Phone Number"
         name="phoneNumber"
         rules={[{ required: true, message: "Please enter your phone number" }]}
       >
-        <Input name="phoneNumber" onChange={handleInputChange} />
+        <Input
+          name="phoneNumber"
+          onChange={handleInputChange}
+          value={bookingInfo.phoneNumber}
+        />
       </Form.Item>
       <Form.Item
         label="Email"
@@ -141,7 +165,11 @@ export default function BookingForm({
           { type: "email", message: "Please enter a valid email" },
         ]}
       >
-        <Input name="email" onChange={handleInputChange} />
+        <Input
+          name="email"
+          onChange={handleInputChange}
+          value={bookingInfo.email}
+        />
       </Form.Item>
 
       {totalPrice !== 0 && (
