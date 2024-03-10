@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Form, Input, Button, DatePicker, Typography } from "antd";
 import { useMutation } from "react-query";
 import axios from "axios";
+import moment from "moment";
 
 const { Text } = Typography;
 
@@ -13,6 +14,9 @@ export default function BookingForm({
   pricePerNight,
 }) {
   const [bookingInfo, setBookingInfo] = useState({
+    userId,
+    accommodationId,
+    roomId,
     checkinDate: null,
     checkoutDate: null,
     name: "",
@@ -33,7 +37,7 @@ export default function BookingForm({
       return;
     }
 
-    const [checkinDate, checkoutDate] = dates;
+    const [checkinDate, checkoutDate] = dates.map((date) => date.toISOString()); // Convert dates to ISO string
     setBookingInfo({ ...bookingInfo, checkinDate, checkoutDate });
 
     // Calculate the stay duration
@@ -41,17 +45,20 @@ export default function BookingForm({
     setStaySummary(stayDuration);
 
     // Calculate total price
-    const nights = stayDuration.nights;
-    const days = stayDuration.days;
-    const totalPrice = pricePerNight * nights * days;
+    const totalPrice = calculatePrice(checkinDate, checkoutDate);
     setTotalPrice(totalPrice);
+  };
+
+  const calculatePrice = (checkinDate, checkoutDate) => {
+    const diffInHours = moment(checkoutDate).diff(checkinDate, "hours");
+    const nights = Math.ceil(diffInHours / 24);
+    const totalPrice = pricePerNight * nights;
+    return totalPrice;
   };
 
   const calculateStayDuration = (checkinDate, checkoutDate) => {
     if (checkinDate && checkoutDate) {
-      const diffInDays = Math.ceil(
-        (checkoutDate - checkinDate) / (1000 * 60 * 60 * 24)
-      );
+      const diffInDays = moment(checkoutDate).diff(checkinDate, "days");
       const diffInNights = diffInDays - 1;
       return { days: diffInDays, nights: diffInNights };
     }
@@ -78,17 +85,11 @@ export default function BookingForm({
     setBookingInfo({ ...bookingInfo, [name]: value });
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async () => {
     try {
-      const formData = {
-        ...values, // Use the form values passed from BookingForm
-        userId,
-        accommodationId,
-        roomId,
-        checkinDate: bookingInfo.checkinDate.toISOString(), // Convert to ISO string
-        checkoutDate: bookingInfo.checkoutDate.toISOString(), // Convert to ISO string
-      };
-      await createBookingMutation.mutateAsync(formData);
+      console.log(bookingInfo);
+
+      await createBookingMutation.mutateAsync(bookingInfo);
       // Handle successful booking
       console.log("Booking successful");
     } catch (error) {
