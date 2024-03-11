@@ -4,17 +4,19 @@ import { useQuery } from "react-query";
 import AccommodationCard from "../components/AccommodationCard";
 import Loading from "../components/Loading";
 import axios from "axios"; // Import axios
+import SearchBar from "../components/SearchBar";
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading, error } = useQuery(
-    ["accommodations", currentPage, pageSize],
+    ["accommodations", currentPage, pageSize, searchQuery],
     async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc`
+          `${import.meta.env.VITE_API_BASE_URL}/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc&search=${searchQuery}`
         );
         return response.data;
       } catch (error) {
@@ -32,6 +34,11 @@ export default function HomePage() {
     setCurrentPage(1); // Reset current page when changing page size
   };
 
+  const handleSearch = (value) => {
+    setSearchQuery(value);
+    setCurrentPage(1); // Reset current page when performing a new search
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -43,6 +50,7 @@ export default function HomePage() {
   if (data) {
     return (
       <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+        <SearchBar onSearch={handleSearch} />
         <Row gutter={[16, 16]}>
           {data.accommodations.map((accommodation, index) => (
             <Col span={24} key={index}>
