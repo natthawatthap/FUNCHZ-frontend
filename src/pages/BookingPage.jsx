@@ -9,7 +9,7 @@ import axios from "axios";
 import Loading from "../components/Loading";
 import BookingForm from "../components/BookingForm";
 
-const Booking = () => {
+export default function Booking() {
   const { accommodationId, roomId } = useParams();
   const navigate = useNavigate();
 
@@ -18,7 +18,10 @@ const Booking = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      localStorage.setItem('redirect',`/accommodation/${accommodationId}/room/${roomId}`);
+      localStorage.setItem(
+        "redirect",
+        `/accommodation/${accommodationId}/room/${roomId}`
+      );
       navigate("/signin");
     } else {
       const decodedToken = jwtDecode(token); // Decode the token
@@ -83,23 +86,23 @@ const Booking = () => {
       <Alert message="Error" description={roomError.message} type="error" />
     );
   }
-
-  return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-      <CarouselImage images={room.images} />
-      <RoomDetail room={room} />
-      <Card>
-        <BookingForm
-          userId={userId}
-          userData={userData}
-          accommodationId={accommodationId}
-          roomId={roomId}
-          bookings={bookings}
-          pricePerNight={room.pricePerNight}
-        />
-      </Card>
-    </Space>
-  );
-};
-
-export default Booking;
+  
+  if (room || userData) {
+    return (
+      <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+        <CarouselImage images={room.images} />
+        <RoomDetail room={room} />
+        <Card>
+          <BookingForm
+            userId={userId}
+            userData={userData}
+            accommodationId={accommodationId}
+            roomId={roomId}
+            bookings={bookings}
+            pricePerNight={room.pricePerNight}
+          />
+        </Card>
+      </Space>
+    );
+  }
+}

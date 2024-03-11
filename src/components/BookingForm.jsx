@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Form, Input, Button, DatePicker, Typography } from "antd";
-import { useMutation, useQuery } from "react-query";
+import React, { useState } from "react";
+import { Form, Input, Button, DatePicker, Typography, Result } from "antd";
+import { useMutation } from "react-query";
 import axios from "axios";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
@@ -14,26 +15,32 @@ export default function BookingForm({
   bookings,
   pricePerNight,
 }) {
- 
-  
-
   const [staySummary, setStaySummary] = useState("");
   const [totalPrice, setTotalPrice] = useState(0);
-  
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState(null);
 
-  const createBookingMutation = useMutation((formData) => {
-    return axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/api/booking`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-  });
-
- 
+  const createBookingMutation = useMutation(
+    (formData) => {
+      return axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/booking`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    },
+    {
+      onSuccess: () => {
+        setBookingSuccess(true);
+      },
+      onError: (error) => {
+        setBookingError(error.message);
+      },
+    }
+  );
 
   const [bookingInfo, setBookingInfo] = useState({
     userId,
@@ -45,7 +52,6 @@ export default function BookingForm({
     phoneNumber: userData ? userData.phoneNumber || "" : "",
     email: userData ? userData.email || "" : "",
   });
-
 
   const handleDateChange = (dates) => {
     if (!dates || dates.length !== 2) {
@@ -103,11 +109,10 @@ export default function BookingForm({
 
   const handleSubmit = async () => {
     try {
-      console.log(bookingInfo);
+   
 
       await createBookingMutation.mutateAsync(bookingInfo);
       // Handle successful booking
-      console.log("Booking successful");
     } catch (error) {
       // Handle booking error
       console.error("Error creating booking:", error);
@@ -115,74 +120,112 @@ export default function BookingForm({
   };
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit} initialValues={bookingInfo}>
-      <Form.Item label="Check-in / Check-out Dates">
-        <DatePicker.RangePicker
-          showTime={{
-            format: "HH:mm",
-          }}
-          format="YYYY-MM-DD HH:mm"
-          onChange={handleDateChange}
-          disabledDate={disabledDate}
+    <>
+      {bookingSuccess && (
+        <Result
+          status="success"
+          title="Booking Successful"
+          subTitle="Thank you for your booking."
+          extra={[
+            <Link to={"/"}>
+              <Button type="primary" key="home">
+                Go to home
+              </Button>
+            </Link>,
+          ]}
         />
-      </Form.Item>
-
-      {staySummary && (
-        <Form.Item label="Stay Duration">
-          <Text type="secondary">
-            {staySummary.days} days, {staySummary.nights} nights
-          </Text>
-        </Form.Item>
       )}
 
-      <Form.Item
-        label="Name"
-        name="name"
-        rules={[{ required: true, message: "Please enter your name" }]}
-      >
-        <Input
-          name="name"
-          onChange={handleInputChange}
-          value={bookingInfo.name}
+      {bookingError && (
+        <Result
+          status="error"
+          title="Booking Failed"
+          subTitle={bookingError}
+          extra={[
+            <Button type="primary" key="retry" onClick={handleSubmit}>
+              Retry
+            </Button>,
+          ]}
         />
-      </Form.Item>
-      <Form.Item
-        label="Phone Number"
-        name="phoneNumber"
-        rules={[{ required: true, message: "Please enter your phone number" }]}
-      >
-        <Input
-          name="phoneNumber"
-          onChange={handleInputChange}
-          value={bookingInfo.phoneNumber}
-        />
-      </Form.Item>
-      <Form.Item
-        label="Email"
-        name="email"
-        rules={[
-          { required: true, message: "Please enter your email" },
-          { type: "email", message: "Please enter a valid email" },
-        ]}
-      >
-        <Input
-          name="email"
-          onChange={handleInputChange}
-          value={bookingInfo.email}
-        />
-      </Form.Item>
-
-      {totalPrice !== 0 && (
-        <Form.Item label="Total Price">
-          <Text>{`$${totalPrice}`}</Text>
-        </Form.Item>
       )}
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Book Now
-        </Button>
-      </Form.Item>
-    </Form>
+      {!bookingSuccess && !bookingError && (
+        <Form
+          layout="vertical"
+          onFinish={handleSubmit}
+          initialValues={bookingInfo}
+        >
+          <Form.Item label="Check-in / Check-out Dates">
+            <DatePicker.RangePicker
+              showTime={{
+                format: "HH:mm",
+              }}
+              format="YYYY-MM-DD HH:mm"
+              onChange={handleDateChange}
+              disabledDate={disabledDate}
+            />
+          </Form.Item>
+
+          {staySummary && (
+            <Form.Item label="Stay Duration">
+              <Text type="secondary">
+                {staySummary.days} days, {staySummary.nights} nights
+              </Text>
+            </Form.Item>
+          )}
+
+          <Form.Item
+            label="Name"
+            name="name"
+            rules={[{ required: true, message: "Please enter your name" }]}
+          >
+            <Input
+              name="name"
+              onChange={handleInputChange}
+              value={bookingInfo.name}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Phone Number"
+            name="phoneNumber"
+            rules={[
+              { required: true, message: "Please enter your phone number" },
+            ]}
+          >
+            <Input
+              name="phoneNumber"
+              onChange={handleInputChange}
+              value={bookingInfo.phoneNumber}
+            />
+          </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please enter your email" },
+              { type: "email", message: "Please enter a valid email" },
+            ]}
+          >
+            <Input
+              name="email"
+              onChange={handleInputChange}
+              value={bookingInfo.email}
+            />
+          </Form.Item>
+
+          {totalPrice !== 0 && (
+            <Form.Item label="Total Price">
+              <Text>{`$${totalPrice}`}</Text>
+            </Form.Item>
+          )}
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Book Now
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
+    </>
   );
 }

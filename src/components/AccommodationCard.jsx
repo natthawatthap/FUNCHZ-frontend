@@ -1,4 +1,4 @@
-import { Card, Carousel, Image, Row, Col, Tag, Typography } from "antd";
+import { Card, Row, Col, Tag, Typography } from "antd";
 import { EnvironmentOutlined, PhoneOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import CarouselImage from "./Carousel";

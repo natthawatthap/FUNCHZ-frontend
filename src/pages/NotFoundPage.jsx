@@ -2,7 +2,7 @@ import React from "react";
 import { Result, Button } from "antd";
 import { Link } from "react-router-dom";
 
-const NotFoundPage = () => {
+export default function NotFoundPage() {
   return (
     <Result
       status="404"
@@ -15,6 +15,4 @@ const NotFoundPage = () => {
       }
     />
   );
-};
-
-export default NotFoundPage;
+}

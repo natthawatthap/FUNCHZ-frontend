@@ -7,7 +7,7 @@ import axios from "axios";
 
 const { Title } = Typography;
 
-const SignInPage = () => {
+export default function SignInPage ()  {
   const navigate = useNavigate();
 
   const signInMutation = useMutation(async (formData) => {
@@ -16,7 +16,6 @@ const SignInPage = () => {
         `${import.meta.env.VITE_API_BASE_URL}/api/signin`,
         formData
       );
-      console.log(response.data);
       const token = response.data.token; // Assuming the token is returned in the response data
       saveTokenToLocalStorage(token);
       return response.data;
@@ -96,4 +95,3 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;

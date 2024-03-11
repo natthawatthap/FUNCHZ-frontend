@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, Link } from "react-router-dom";
-import { Breadcrumb, Layout, Menu, theme, Button, Image, Space } from "antd";
+import { Layout, Button, Image, Space } from "antd";
 const { Header, Content, Footer } = Layout;
 
-const BaseLayout = () => {
+export default function BaseLayout() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track authentication
 
@@ -49,7 +49,7 @@ const BaseLayout = () => {
               <>
                 <Button onClick={handleLogin}>Login</Button>
                 <Button type="primary" onClick={handleSignup}>
-                Register
+                  Register
                 </Button>
               </>
             )}
@@ -82,6 +82,4 @@ const BaseLayout = () => {
       </Footer>
     </Layout>
   );
-};
-
-export default BaseLayout;
+}

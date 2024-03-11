@@ -2,7 +2,7 @@ import { Typography, Tag } from "antd";
 
 const { Title, Paragraph } = Typography;
 
-const RoomDetail = ({ room }) => {
+export default function RoomDetail({ room }) {
   return (
     <>
       <Title level={2}>{room.name}</Title>
@@ -16,6 +16,4 @@ const RoomDetail = ({ room }) => {
       </Paragraph>
     </>
   );
-};
-
-export default RoomDetail;
+}

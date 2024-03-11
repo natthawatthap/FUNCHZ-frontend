@@ -12,7 +12,7 @@ import { useMutation } from "react-query";
 
 const { Title } = Typography;
 
-const SignUpPage = () => {
+export default function SignUpPage() {
   const navigate = useNavigate();
 
   const signUpMutation = useMutation(async (formData) => {
@@ -107,6 +107,4 @@ const SignUpPage = () => {
       </Col>
     </Row>
   );
-};
-
-export default SignUpPage;
+}

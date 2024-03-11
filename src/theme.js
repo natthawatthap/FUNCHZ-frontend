@@ -14,6 +14,9 @@ const customTheme = {
       headerBg: "#f0f2f5", 
       headerColor: "#333", 
     },
+    Typography: {
+      fontFamilyCode: "Menlo, Monaco, 'Courier New', monospace",
+    },
   },
 };
 

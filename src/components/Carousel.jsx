@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { Carousel, Button, Image } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 
-const CarouselImage = ({ images }) => {
+export default function CarouselImage ({ images })  {
   const carouselRef = useRef(null);
 
   const handleNext = () => {
@@ -61,4 +61,3 @@ const CarouselImage = ({ images }) => {
   );
 };
 
-export default CarouselImage;
