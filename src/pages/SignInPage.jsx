@@ -16,7 +16,7 @@ export default function SignInPage ()  {
         `${import.meta.env.VITE_API_BASE_URL}/api/signin`,
         formData
       );
-      const token = response.data.token; // Assuming the token is returned in the response data
+      const token = response.data.token;
       saveTokenToLocalStorage(token);
       return response.data;
     } catch (error) {
