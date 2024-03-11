@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Space, Row, Col, Pagination, Alert } from "antd";
+import { Space, Row, Col, Pagination, Alert, Result } from "antd";
 import { useQuery } from "react-query";
 import AccommodationCard from "../components/AccommodationCard";
 import Loading from "../components/Loading";
@@ -11,17 +11,26 @@ export default function HomePage() {
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isLoading, error } = useQuery(
+  const { data, isLoading, accommodationsError } = useQuery(
     ["accommodations", currentPage, pageSize, searchQuery],
     async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc&search=${searchQuery}`
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/api/accommodations?page=${currentPage}&limit=${pageSize}&sortBy=name&sortOrder=asc&search=${searchQuery}`
         );
         return response.data;
       } catch (error) {
         throw new Error("Failed to fetch accommodations");
       }
+    }
+  );
+
+  const { isLoading: healthCheckLoading, error: healthCheckError } = useQuery(
+    "health",
+    async () => {
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/health`);
     }
   );
 
@@ -39,12 +48,26 @@ export default function HomePage() {
     setCurrentPage(1); // Reset current page when performing a new search
   };
 
-  if (isLoading) {
+  if (isLoading || healthCheckLoading) {
     return <Loading />;
   }
-
-  if (error) {
-    return <Alert message="Error" description={error.message} type="error" />;
+  if (healthCheckError) {
+    return (
+      <Result
+        status="warning"
+        title="Maintenance"
+        subTitle="Service is currently under maintenance."
+      />
+    );
+  }
+  if (accommodationsError) {
+    return (
+      <Alert
+        message="Error"
+        description={accommodationsError.message}
+        type="error"
+      />
+    );
   }
 
   if (data) {
